@@ -6,6 +6,7 @@ import threading
 from PyQt6.QtCore import QObject, Qt, QThread, QTimer, pyqtSignal
 
 from core.utils.qobject import is_valid_qobject
+from core.widgets.services.update_check import chocolatey as chocolatey_mgr
 from core.widgets.services.update_check import scoop as scoop_mgr
 from core.widgets.services.update_check import windows_update as wu_mgr
 from core.widgets.services.update_check import winget as winget_mgr
@@ -16,6 +17,7 @@ _SOURCE_MODULES = {
     "winget": winget_mgr,
     "scoop": scoop_mgr,
     "windows": wu_mgr,
+    "chocolatey": chocolatey_mgr,
 }
 
 
@@ -46,6 +48,8 @@ class _UpdateWorker(QThread):
                 names = [f"{u['name']}: {u['version']} -> {u['available']}" for u in updates]
             elif self.source == "windows":
                 names = [u["name"] for u in updates]
+            elif self.source == "chocolatey":
+                names = [f"{u['name']}: {u['version']} -> {u['available']}" for u in updates]
 
             # Apply exclude filter
             ids = [u["id"] for u in updates]
@@ -133,6 +137,8 @@ class UpdateCheckService(QObject):
             sources.append(("scoop", config.scoop_update.interval, config.scoop_update.exclude))
         if hasattr(config, "windows_update") and config.windows_update.enabled:
             sources.append(("windows", config.windows_update.interval, config.windows_update.exclude))
+        if hasattr(config, "chocolatey_update") and config.chocolatey_update.enabled:
+            sources.append(("chocolatey", config.chocolatey_update.interval, config.chocolatey_update.exclude))
 
         for source, interval_min, exclude in sources:
             if source not in self._timers:
@@ -148,7 +154,7 @@ class UpdateCheckService(QObject):
         self._timers[source] = timer
 
         # Initial check after short delay (stagger to avoid all at once)
-        delay = {"winget": 10_000, "scoop": 15_000, "windows": 20_000}.get(source, 10_000)
+        delay = {"winget": 10_000, "scoop": 15_000, "windows": 20_000, "chocolatey": 25_000}.get(source, 10_000)
         QTimer.singleShot(delay, lambda s=source, e=exclude, t=timer, i=interval_ms: self._initial_check(s, e, t, i))
 
     def _initial_check(self, source: str, exclude: list[str], timer: QTimer, interval_ms: int):
