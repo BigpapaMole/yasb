@@ -22,7 +22,12 @@ class ScoopUpdateConfig(UpdateConfig):
     interval: int = Field(default=240, ge=10, le=10080)
 
 
+class ChocolateyUpdateConfig(UpdateConfig):
+    interval: int = Field(default=240, ge=10, le=10080)
+
+
 class UpdateCheckWidgetConfig(CustomBaseModel):
     windows_update: WindowsUpdateConfig = WindowsUpdateConfig()
     winget_update: WingetUpdateConfig = WingetUpdateConfig()
     scoop_update: ScoopUpdateConfig = ScoopUpdateConfig()
+    chocolatey_update: ChocolateyUpdateConfig = ChocolateyUpdateConfig()

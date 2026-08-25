@@ -10,7 +10,7 @@ from core.widgets.base import BaseWidget
 from core.widgets.services.update_check.service import UpdateCheckService
 
 # Sources and their config attribute names
-_SOURCES = ("winget", "scoop", "windows")
+_SOURCES = ("winget", "scoop", "windows", "chocolatey")
 
 
 class UpdateCheckWidget(BaseWidget):
@@ -123,7 +123,7 @@ class UpdateCheckWidget(BaseWidget):
             idx += 1
 
         if cfg.tooltip:
-            title = {"winget": "Winget Update", "scoop": "Scoop Update", "windows": "Windows Update"}.get(
+            title = {"winget": "Winget Update", "scoop": "Scoop Update", "windows": "Windows Update", "chocolatey": "Chocolatey Update"}.get(
                 source, source
             )
             # Truncate long Windows update names
